@@ -1,4 +1,4 @@
 output "app_url" {
-  description = "Load balancer DNS name"
-  value       = aws_lb.alb.dns_name
+  description = "Application URL"
+  value       = module.network.app_url
 }
