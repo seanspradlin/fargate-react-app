@@ -34,3 +34,7 @@ module "cluster" {
   application_target_group_arn = module.network.application_target_group_arn
 }
 
+module "repository" {
+  source = "./repository"
+}
+

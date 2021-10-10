@@ -63,7 +63,7 @@ resource "aws_ecs_task_definition" "task" {
   container_definitions = jsonencode([
     {
       name      = "application"
-      image     = "particule/helloworld"
+      image     = "nginx"
       essential = true
       portMappings = [
         {
