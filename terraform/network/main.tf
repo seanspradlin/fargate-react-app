@@ -117,6 +117,11 @@ resource "aws_lb_target_group" "group" {
 
   depends_on = [aws_lb.alb]
 
+  health_check {
+    matcher = "200"
+    path    = "/healthcheck"
+  }
+
   lifecycle {
     create_before_destroy = true
   }
