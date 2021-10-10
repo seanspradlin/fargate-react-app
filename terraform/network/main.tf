@@ -112,13 +112,17 @@ resource "aws_route53_record" "www" {
 }
 
 resource "aws_lb_target_group" "group" {
-  name        = "tf-fargate-demo-tg"
+  name        = "tf-application-tg"
   port        = "8080"
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = aws_vpc.vpc.id
 
   depends_on = [aws_lb.alb]
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_lb_listener" "server" {
