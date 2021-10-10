@@ -79,6 +79,7 @@ resource "aws_ecs_service" "service" {
   name            = "tf-fargate-service-demo"
   cluster         = aws_ecs_cluster.cluster.id
   task_definition = aws_ecs_task_definition.task.arn
+  launch_type     = "FARGATE"
   desired_count   = 1
 
   network_configuration {
@@ -94,12 +95,6 @@ resource "aws_ecs_service" "service" {
 
   deployment_controller {
     type = "ECS"
-  }
-
-  capacity_provider_strategy {
-    base              = 0
-    capacity_provider = "FARGATE"
-    weight            = 100
   }
 }
 
