@@ -27,13 +27,17 @@ resource "aws_iam_role_policy" "fargate" {
   "Statement": [
     {
       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:BatchGetImage",
         "ecr:CompleteLayerUpload",
         "ecr:DescribeRepositories",
         "ecr:ListImages",
         "ecr:DescribeImages",
         "ecr:GetAuthorizationToken",
         "ecr:GetDownloadUrlForLayer",
-        "ecr:GetLifecyclePolicy"
+        "ecr:GetLifecyclePolicy",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
       ],
       "Effect": "Allow",
       "Resource": "*"
