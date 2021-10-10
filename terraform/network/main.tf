@@ -6,54 +6,6 @@ resource "aws_internet_gateway" "gateway" {
   vpc_id = aws_vpc.vpc.id
 }
 
-resource "aws_security_group" "web_traffic_sg" {
-  name        = "tf-vpc_web"
-  description = "Allow incoming HTTP connections"
-  vpc_id      = aws_vpc.vpc.id
-
-  ingress = [
-    {
-      description      = "HTTP from VPC"
-      from_port        = 80
-      to_port          = 80
-      protocol         = "tcp"
-      cidr_blocks      = [aws_vpc.vpc.cidr_block]
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      security_groups  = []
-      self             = false
-    },
-    {
-      description      = "TLS from VPC"
-      from_port        = 443
-      to_port          = 443
-      protocol         = "tcp"
-      cidr_blocks      = [aws_vpc.vpc.cidr_block]
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      security_groups  = []
-      self             = false
-    }
-  ]
-
-
-  egress = [
-    {
-      description      = "Allow all"
-      from_port        = 0
-      to_port          = 0
-      protocol         = "-1"
-      cidr_blocks      = ["0.0.0.0/0"]
-      ipv6_cidr_blocks = ["::/0"]
-      ipv6_cidr_blocks = ["::/0"]
-      prefix_list_ids  = []
-      security_groups  = []
-      self             = false
-    }
-  ]
-
-}
-
 data "aws_availability_zones" "zones" {
   state = "available"
 }
@@ -95,7 +47,6 @@ resource "aws_lb" "alb" {
   internal           = false
   load_balancer_type = "application"
   subnets            = [aws_subnet.primary.id, aws_subnet.secondary.id]
-  security_groups    = [aws_security_group.web_traffic_sg.id]
   depends_on         = [aws_internet_gateway.gateway]
 }
 
