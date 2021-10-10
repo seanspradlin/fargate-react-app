@@ -2,6 +2,51 @@ resource "aws_vpc" "vpc" {
   cidr_block = "10.0.0.0/22"
 }
 
+resource "aws_security_group" "allow_web_traffic" {
+  name        = "allow_web_traffic"
+  description = "Allow HTTP and HTTPS"
+  vpc_id      = aws_vpc.vpc.id
+
+  ingress = [
+    {
+      description      = "Accept all HTTP"
+      from_port        = 80
+      to_port          = 80
+      protocol         = "tcp"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      security_groups  = []
+      self             = false
+    },
+    {
+      description      = "Accept all TLS"
+      from_port        = 443
+      to_port          = 443
+      protocol         = "tcp"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      security_groups  = []
+      self             = false
+    }
+  ]
+
+  egress = [
+    {
+      description      = "Allow all traffic"
+      from_port        = 0
+      to_port          = 0
+      protocol         = "-1"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = ["::/0"]
+      prefix_list_ids  = []
+      security_groups  = []
+      self             = false
+    }
+  ]
+}
+
 resource "aws_internet_gateway" "gateway" {
   vpc_id = aws_vpc.vpc.id
 }
@@ -47,6 +92,7 @@ resource "aws_lb" "alb" {
   internal           = false
   load_balancer_type = "application"
   subnets            = [aws_subnet.primary.id, aws_subnet.secondary.id]
+  security_groups    = [aws_security_group.allow_web_traffic.id]
   depends_on         = [aws_internet_gateway.gateway]
 }
 
@@ -64,7 +110,7 @@ resource "aws_route53_record" "www" {
 
 resource "aws_lb_target_group" "group" {
   name        = "tf-application-tg"
-  port        = "8080"
+  port        = 8080
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = aws_vpc.vpc.id
