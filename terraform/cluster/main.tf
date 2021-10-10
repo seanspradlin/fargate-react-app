@@ -67,8 +67,8 @@ resource "aws_ecs_task_definition" "task" {
       essential = true
       portMappings = [
         {
-          containerPort = 80
-          hostPort      = 80
+          containerPort = 8080
+          hostPort      = 8080
         }
       ]
     }
@@ -88,7 +88,7 @@ resource "aws_ecs_service" "service" {
   load_balancer {
     target_group_arn = var.application_target_group_arn
     container_name   = "application"
-    container_port   = 80
+    container_port   = 8080
   }
 
   capacity_provider_strategy {

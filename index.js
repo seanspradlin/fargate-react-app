@@ -1,5 +1,6 @@
 const express = require('express');
 
+const PORT = 8080;
 const app = express();
 
 app.get('/healthcheck', (req, res) => {
@@ -10,6 +11,6 @@ app.get('/', (req, res) => {
   res.status(200).json({ message: 'Hello World' });
 });
 
-app.listen(8080, () => {
-  console.log('Listening on port 8080');
+app.listen(PORT, () => {
+  console.log(`Listening on port ${PORT}`);
 });
