@@ -36,7 +36,5 @@ module "cluster" {
 
 module "repository" {
   source = "./repository"
-  service_arn = module.cluster.ecs_service_arn
-  service_role_arn = module.cluster.ecs_service_role_arn
 }
 
