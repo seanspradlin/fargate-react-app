@@ -15,8 +15,11 @@ resource "aws_iam_user_policy" "github" {
         "iam:GetRole",
         "ecs:DescribeTaskDefinition",
         "ecs:DescribeServices",
+        "ecs:ListTaskDefinitions",
         "ecs:UpdateService",
         "ecs:RegisterTaskDefinition",
+        "ecr:BatchGetImage",
+        "ecr:BatchCheckLayerAvailability",
         "ecr:CompleteLayerUpload",
         "ecr:DescribeRepositories",
         "ecr:ListImages",
@@ -35,7 +38,6 @@ resource "aws_iam_user_policy" "github" {
 }
 EOF
 }
-
 
 resource "aws_iam_access_key" "github" {
   user = aws_iam_user.github.name
