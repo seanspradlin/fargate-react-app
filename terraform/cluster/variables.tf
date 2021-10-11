@@ -5,3 +5,7 @@ variable "public_subnets" {
 variable "application_target_group_arn" {
   type = string
 }
+
+variable "ecr_url" {
+  type = string
+}

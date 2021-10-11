@@ -32,6 +32,7 @@ module "cluster" {
   source                       = "./cluster"
   public_subnets               = module.network.public_subnets
   application_target_group_arn = module.network.application_target_group_arn
+  ecr_url                      = module.repository.ecr_url
 }
 
 module "repository" {

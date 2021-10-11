@@ -29,6 +29,17 @@ resource "aws_security_group" "allow_web_traffic" {
       prefix_list_ids  = []
       security_groups  = []
       self             = false
+    },
+    {
+      description      = "Accept all TLS"
+      from_port        = 8
+      to_port          = 8
+      protocol         = "icmp"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      security_groups  = []
+      self             = false
     }
   ]
 
