@@ -23,19 +23,3 @@ provider "aws" {
   }
 }
 
-module "network" {
-  source         = "./network"
-  hosted_zone_id = var.hosted_zone_id
-}
-
-module "cluster" {
-  source                       = "./cluster"
-  public_subnets               = module.network.public_subnets
-  application_target_group_arn = module.network.application_target_group_arn
-  ecr_url                      = module.repository.ecr_url
-}
-
-module "repository" {
-  source = "./repository"
-}
-

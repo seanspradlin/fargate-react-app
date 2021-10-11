@@ -1,52 +1,3 @@
-resource "aws_iam_role" "fargate" {
-  name = "tf-fargate-role"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Sid    = ""
-        Principal = {
-          Service = [
-            "ecs.amazonaws.com",
-            "ecs-tasks.amazonaws.com"
-          ]
-        }
-      },
-    ]
-  })
-}
-
-resource "aws_iam_role_policy" "fargate" {
-  name   = "tf-execution-role"
-  role   = aws_iam_role.fargate.id
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": [
-        "ecr:BatchCheckLayerAvailability",
-        "ecr:BatchGetImage",
-        "ecr:CompleteLayerUpload",
-        "ecr:DescribeRepositories",
-        "ecr:ListImages",
-        "ecr:DescribeImages",
-        "ecr:GetAuthorizationToken",
-        "ecr:GetDownloadUrlForLayer",
-        "ecr:GetLifecyclePolicy",
-        "logs:CreateLogStream",
-        "logs:PutLogEvents"
-      ],
-      "Effect": "Allow",
-      "Resource": "*"
-    }
-  ]
-}
-EOF
-}
-
 resource "aws_ecs_cluster" "cluster" {
   name               = "tf-fargate-cluster"
   capacity_providers = ["FARGATE"]
@@ -67,7 +18,7 @@ resource "aws_ecs_task_definition" "task" {
   container_definitions = jsonencode([
     {
       name      = "application"
-      image     = var.ecr_url
+      image     = aws_ecr_repository.repository.repository_url
       essential = true
       portMappings = [
         {
@@ -88,12 +39,12 @@ resource "aws_ecs_service" "service" {
   health_check_grace_period_seconds = 300
 
   network_configuration {
-    subnets          = var.public_subnets
+    subnets          = [aws_subnet.primary.id, aws_subnet.secondary.id]
     assign_public_ip = true
   }
 
   load_balancer {
-    target_group_arn = var.application_target_group_arn
+    target_group_arn = aws_lb_target_group.group.arn
     container_name   = "application"
     container_port   = 8080
   }
@@ -102,4 +53,3 @@ resource "aws_ecs_service" "service" {
     type = "ECS"
   }
 }
-
