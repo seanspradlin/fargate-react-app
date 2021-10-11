@@ -3,7 +3,7 @@ resource "aws_lb" "alb" {
   internal           = false
   load_balancer_type = "application"
   subnets            = [aws_subnet.primary.id, aws_subnet.secondary.id]
-  security_groups    = [aws_security_group.allow_web_traffic.id]
+  security_groups    = [aws_security_group.lb_sg.id]
   depends_on         = [aws_internet_gateway.gateway]
 }
 

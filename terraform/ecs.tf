@@ -61,7 +61,7 @@ resource "aws_ecs_service" "service" {
   health_check_grace_period_seconds = 300
 
   network_configuration {
-    security_groups  = [aws_security_group.allow_web_traffic.id]
+    security_groups  = [aws_security_group.task_sg.id]
     subnets          = [aws_subnet.primary.id, aws_subnet.secondary.id]
     assign_public_ip = true
   }

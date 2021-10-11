@@ -2,10 +2,29 @@ resource "aws_vpc" "vpc" {
   cidr_block = "10.0.0.0/22"
 }
 
-resource "aws_security_group" "allow_web_traffic" {
-  name        = "allow_web_traffic"
-  description = "Allow HTTP and HTTPS"
-  vpc_id      = aws_vpc.vpc.id
+resource "aws_security_group" "task_sg" {
+  name   = "fargate-demo-task"
+  vpc_id = aws_vpc.vpc.id
+
+  ingress {
+    description = "Accept only on listener port"
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+  }
+
+  egress {
+    description = "Allow all traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "lb_sg" {
+  name   = "fargate-demo-lb"
+  vpc_id = aws_vpc.vpc.id
 
   ingress {
     description = "Accept all HTTP"
@@ -23,20 +42,11 @@ resource "aws_security_group" "allow_web_traffic" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  ingress {
-    description = "Accept pings"
-    from_port   = 8
-    to_port     = 0
-    protocol    = "icmp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   egress {
-    description = "Allow all traffic"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    description = "Only connection to task port"
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
   }
 }
 
