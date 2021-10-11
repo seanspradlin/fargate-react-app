@@ -30,14 +30,24 @@ resource "aws_ecs_task_definition" "task" {
   container_definitions = jsonencode([
     {
       name      = "application"
-      image     = aws_ecr_repository.repository.repository_url
+      image     = "${aws_ecr_repository.repository.repository_url}:latest"
       essential = true
       portMappings = [
         {
           containerPort = 8080
-          hostPort      = 8080
         }
-      ]
+      ],
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.fargate_logs.name
+          awslogs-region        = "us-east-1"
+          awslogs-stream-prefix = "ecs"
+        }
+      }
+      healthCheck = {
+        command = ["CMD-SHELL", "curl -f http://localhost:8080/healthcheck || exit 1"]
+      }
     }
   ])
 }
@@ -51,6 +61,7 @@ resource "aws_ecs_service" "service" {
   health_check_grace_period_seconds = 300
 
   network_configuration {
+    security_groups  = [aws_security_group.allow_web_traffic.id]
     subnets          = [aws_subnet.primary.id, aws_subnet.secondary.id]
     assign_public_ip = true
   }
