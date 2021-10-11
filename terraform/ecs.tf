@@ -45,9 +45,6 @@ resource "aws_ecs_task_definition" "task" {
           awslogs-stream-prefix = "ecs"
         }
       }
-      healthCheck = {
-        command = ["CMD-SHELL", "curl -f http://localhost:8080/healthcheck || exit 1"]
-      }
     }
   ])
 }
