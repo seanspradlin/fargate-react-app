@@ -6,12 +6,24 @@ resource "aws_ecs_cluster" "cluster" {
     capacity_provider = "FARGATE"
     weight            = "100"
   }
+
+  configuration {
+    execute_command_configuration {
+      kms_key_id = aws_kms_key.kms_key.arn
+      logging    = "OVERRIDE"
+
+      log_configuration {
+        cloud_watch_encryption_enabled = true
+        cloud_watch_log_group_name     = aws_cloudwatch_log_group.fargate_logs.name
+      }
+    }
+  }
 }
 
 resource "aws_ecs_task_definition" "task" {
   family                   = "service"
   requires_compatibilities = ["FARGATE"]
-  execution_role_arn       = aws_iam_role.fargate.arn
+  execution_role_arn       = aws_iam_role.ecs_full_access_assume_role.arn
   network_mode             = "awsvpc"
   cpu                      = 256
   memory                   = 512
