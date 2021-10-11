@@ -11,6 +11,7 @@ resource "aws_security_group" "task_sg" {
     from_port   = 8080
     to_port     = 8080
     protocol    = "tcp"
+    cidr_blocks = [aws_vpc.vpc.cidr_block]
   }
 
   egress {
@@ -47,29 +48,7 @@ resource "aws_security_group" "lb_sg" {
     from_port   = 8080
     to_port     = 8080
     protocol    = "tcp"
-  }
-}
-
-resource "aws_network_acl" "allow_web_traffic" {
-  vpc_id     = aws_vpc.vpc.id
-  subnet_ids = [aws_subnet.primary.id, aws_subnet.secondary.id]
-
-  ingress {
-    protocol   = -1
-    rule_no    = 100
-    action     = "allow"
-    cidr_block = "0.0.0.0/0"
-    from_port  = 0
-    to_port    = 0
-  }
-
-  egress {
-    protocol   = -1
-    rule_no    = 100
-    action     = "allow"
-    cidr_block = "0.0.0.0/0"
-    from_port  = 0
-    to_port    = 0
+    cidr_blocks = [aws_vpc.vpc.cidr_block]
   }
 }
 
