@@ -17,12 +17,8 @@ resource "aws_lb_target_group" "group" {
   depends_on = [aws_lb.alb]
 
   health_check {
-    matcher             = "200"
-    path                = "/healthcheck"
-    port                = 8080
-    healthy_threshold   = 6
-    unhealthy_threshold = 2
-    timeout             = 5
+    matcher = "200"
+    path    = "/api/healthcheck"
   }
 
   lifecycle {
