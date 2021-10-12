@@ -1,9 +1,5 @@
 terraform {
-  backend "s3" {
-    bucket = "spradlin-tf-states"
-    key    = "ecs-fargate-demo"
-    region = "us-east-1"
-  }
+  backend "s3" {}
 
   required_providers {
     aws = {
