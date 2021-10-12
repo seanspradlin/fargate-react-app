@@ -1,5 +1,5 @@
 resource "aws_lb" "alb" {
-  name               = "tf-alb"
+  name               = "tf-${var.project}-${var.environment}-alb"
   internal           = false
   load_balancer_type = "application"
   subnets            = [aws_subnet.primary.id, aws_subnet.secondary.id]
@@ -8,25 +8,21 @@ resource "aws_lb" "alb" {
 }
 
 resource "aws_lb_target_group" "group" {
-  name        = "tf-application-tg"
-  port        = 8080
+  name        = "tf-${var.project}-${var.task.name}-${var.environment}-tg"
+  port        = var.task.port
   protocol    = "HTTP"
   target_type = "ip"
-  vpc_id      = aws_vpc.vpc.id
+  vpc_id      = aws_vpc.main.id
 
   depends_on = [aws_lb.alb]
 
   health_check {
     matcher = "200"
-    path    = "/api/healthcheck"
-  }
-
-  lifecycle {
-    create_before_destroy = true
+    path    = var.task.healthcheck
   }
 }
 
-resource "aws_lb_listener" "server" {
+resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.alb.arn
   port              = "80"
   protocol          = "HTTP"
@@ -36,3 +32,4 @@ resource "aws_lb_listener" "server" {
     target_group_arn = aws_lb_target_group.group.arn
   }
 }
+

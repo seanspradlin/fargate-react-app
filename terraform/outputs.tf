@@ -1,5 +1,5 @@
 output "aws_region" {
-  value = "us-east-1"
+  value = var.aws_region
 }
 
 output "app_url" {
@@ -7,14 +7,14 @@ output "app_url" {
   value       = aws_route53_record.www.name
 }
 
-output "github_access_key" {
-  description = "AWS_ACCESS_KEY for GitHub Actions"
-  value       = aws_iam_access_key.github.id
+output "ci_access_key" {
+  description = "AWS_ACCESS_KEY for CI"
+  value       = aws_iam_access_key.ci.id
 }
 
-output "github_secret_key" {
-  description = "AWS_SECRET_ACCESS_KEY for GitHub Actions"
-  value       = aws_iam_access_key.github.secret
+output "ci_secret_key" {
+  description = "AWS_SECRET_ACCESS_KEY for CI"
+  value       = aws_iam_access_key.ci.secret
   sensitive   = true
 }
 

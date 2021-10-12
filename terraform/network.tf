@@ -1,17 +1,17 @@
-resource "aws_vpc" "vpc" {
+resource "aws_vpc" "main" {
   cidr_block = "10.0.0.0/22"
 }
 
 resource "aws_security_group" "task_sg" {
-  name   = "fargate-demo-task"
-  vpc_id = aws_vpc.vpc.id
+  name   = "tf-${var.project}-${var.task.name}-${var.environment}-task-sg"
+  vpc_id = aws_vpc.main.id
 
   ingress {
     description = "Accept only on listener port"
-    from_port   = 8080
-    to_port     = 8080
+    from_port   = var.task.port
+    to_port     = var.task.port
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.vpc.cidr_block]
+    cidr_blocks = [aws_vpc.main.cidr_block]
   }
 
   egress {
@@ -24,8 +24,8 @@ resource "aws_security_group" "task_sg" {
 }
 
 resource "aws_security_group" "lb_sg" {
-  name   = "fargate-demo-lb"
-  vpc_id = aws_vpc.vpc.id
+  name   = "tf-${var.project}-${var.environment}-alb-sg"
+  vpc_id = aws_vpc.main.id
 
   ingress {
     description = "Accept all HTTP"
@@ -45,15 +45,15 @@ resource "aws_security_group" "lb_sg" {
 
   egress {
     description = "Only connection to task port"
-    from_port   = 8080
-    to_port     = 8080
+    from_port   = var.task.port
+    to_port     = var.task.port
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.vpc.cidr_block]
+    cidr_blocks = [aws_vpc.main.cidr_block]
   }
 }
 
 resource "aws_internet_gateway" "gateway" {
-  vpc_id = aws_vpc.vpc.id
+  vpc_id = aws_vpc.main.id
 }
 
 data "aws_availability_zones" "zones" {
@@ -61,21 +61,21 @@ data "aws_availability_zones" "zones" {
 }
 
 resource "aws_subnet" "primary" {
-  vpc_id                  = aws_vpc.vpc.id
+  vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.0.0/24"
   availability_zone       = data.aws_availability_zones.zones.names[0]
   map_public_ip_on_launch = true
 }
 
 resource "aws_subnet" "secondary" {
-  vpc_id                  = aws_vpc.vpc.id
+  vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.1.0/24"
   availability_zone       = data.aws_availability_zones.zones.names[1]
   map_public_ip_on_launch = true
 }
 
 resource "aws_route_table" "public_routes" {
-  vpc_id = aws_vpc.vpc.id
+  vpc_id = aws_vpc.main.id
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.gateway.id
@@ -90,4 +90,16 @@ resource "aws_route_table_association" "primary_rt_association" {
 resource "aws_route_table_association" "secondary_rt_association" {
   subnet_id      = aws_subnet.secondary.id
   route_table_id = aws_route_table.public_routes.id
+}
+
+resource "aws_route53_record" "www" {
+  zone_id = var.hosted_zone_id
+  name    = var.domain
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.alb.dns_name
+    zone_id                = aws_lb.alb.zone_id
+    evaluate_target_health = false
+  }
 }

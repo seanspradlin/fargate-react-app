@@ -1,4 +1,4 @@
 resource "aws_ecr_repository" "repository" {
-  name                 = "tf-fargate-demo"
+  name                 = "${var.project}-${var.task.name}"
   image_tag_mutability = "MUTABLE"
 }
